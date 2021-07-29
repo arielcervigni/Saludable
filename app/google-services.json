@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "963700813639",
+    "project_id": "saludable-d337a",
+    "storage_bucket": "saludable-d337a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:963700813639:android:1e86787f538bf536f36662",
+        "android_client_info": {
+          "package_name": "edu.acervigni.saludable"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "963700813639-k80hh4m9b1ijjvu97t18slpm4jmtqmom.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRwlCljAESBCsZ54HGSWF7SsuFsEsGDIA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "963700813639-k80hh4m9b1ijjvu97t18slpm4jmtqmom.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
