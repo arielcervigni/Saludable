@@ -272,5 +272,14 @@
             style="?attr/materialButtonOutlinedStyle"
             />
 
+        <Button
+            android:id="@+id/r_btn_CerrarSesion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="CERRAR SESIÓN"
+            style="?attr/materialButtonOutlinedStyle"
+            />
+
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -14,7 +14,7 @@ data class Comida (val id: Int = 0,
                   var tentacion : String,
                   var descTentacion : String,
                   var hambre : String,
-                  var idUsuario : Int,
+                  var username : String,
                   var fechaHora : String
 
 ) : Serializable

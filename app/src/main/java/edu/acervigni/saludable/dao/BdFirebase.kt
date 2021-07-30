@@ -14,7 +14,7 @@ class BdFirebase  {
     fun guardarComidaFB(comida: Comida): Boolean {
 
         try {
-            db.collection("comidas").document(comida.idUsuario.toString() + "-" + comida.fechaHora)
+            db.collection("comidas").document(comida.username + "-" + comida.fechaHora)
                 .set(
                     hashMapOf(
                         "tipoComida" to comida.tipoComida,
@@ -26,7 +26,7 @@ class BdFirebase  {
                         "bTentacion" to comida.tentacion,
                         "dTentacion" to comida.descTentacion,
                         "bHambre" to comida.hambre,
-                        "idUsuario" to comida.idUsuario,
+                        "username" to comida.username,
                         "fechaHora" to comida.fechaHora
                     )
                 )

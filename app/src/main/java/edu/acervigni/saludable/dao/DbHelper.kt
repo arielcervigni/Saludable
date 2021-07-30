@@ -42,7 +42,7 @@ class DbHelper(
         val COLUMN_BTENTACION = "b_tentacion"
         val COLUMN_TENTACION = "tentacion"
         val COLUMN_HAMBRE = "hambre"
-        val COLUMN_IDUSUARIO = "id_usuario"
+        val COLUMN_USUARIO_C = "username"
         val COLUMN_FECHA_HORA = "fecha_hora"
     }
 
@@ -59,7 +59,7 @@ class DbHelper(
                 COLUMN_TIPO + " TEXT, " + COLUMN_PRINCIPAL + " TEXT, " + COLUMN_SECUNDARIO + " TEXT, " +
                 COLUMN_BEBIDA + " TEXT, " + COLUMN_BPOSTRE + " TEXT, " + COLUMN_POSTRE + " TEXT, " +
                 COLUMN_BTENTACION + " TEXT, " + COLUMN_TENTACION + " TEXT, " +
-                COLUMN_HAMBRE + " TEXT, " + COLUMN_IDUSUARIO + " INTEGER, " + COLUMN_FECHA_HORA + " TEXT )")
+                COLUMN_HAMBRE + " TEXT, " + COLUMN_USUARIO_C + " TEXT, " + COLUMN_FECHA_HORA + " TEXT )")
 
         db?.execSQL(createTable)
     }
@@ -150,7 +150,7 @@ class DbHelper(
             values.put("b_tentacion",comida.tentacion)
             values.put("tentacion",comida.descTentacion)
             values.put("hambre",comida.hambre)
-            values.put("id_usuario",comida.idUsuario)
+            values.put("username",comida.username)
             values.put("fecha_hora",comida.fechaHora)
 
             db.insert(TABLE_NAME_C,null,values)
@@ -197,10 +197,10 @@ class DbHelper(
         val btentacion = cursor.getString(cursor.getColumnIndex(COLUMN_BTENTACION))
         val dtentacion = cursor.getString(cursor.getColumnIndex(COLUMN_TENTACION))
         val bhambre = cursor.getString(cursor.getColumnIndex(COLUMN_HAMBRE))
-        val idUsuario = cursor.getInt(cursor.getColumnIndex(COLUMN_IDUSUARIO))
+        val username = cursor.getString(cursor.getColumnIndex(COLUMN_USUARIO_C))
         val fechaHora = cursor.getString(cursor.getColumnIndex(COLUMN_FECHA_HORA))
 
         return Comida(id,tipo,principal,secundaria,bebida,bpostre,dpostre,
-            btentacion,dtentacion,bhambre,idUsuario,fechaHora)
+            btentacion,dtentacion,bhambre,username,fechaHora)
     }
 }

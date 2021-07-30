@@ -1,5 +1,6 @@
 package edu.acervigni.saludable.view
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -21,8 +22,9 @@ class ComidaActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityComidaBinding
     lateinit var comidaViewModel: ComidaViewModel
-    var idUsuario : Int = 0
-    lateinit var tipoComida : String
+
+    lateinit var tipoComida: String
+    var username: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,52 +33,30 @@ class ComidaActivity : AppCompatActivity() {
 
         comidaViewModel = ViewModelProvider(this).get(ComidaViewModel::class.java)
 
-        val comidas : ArrayList<Comida>? = comidaViewModel.obtenerComidas(this)
-        Log.d("COMIDAS:" , comidas.toString())
-
-        idUsuario = intent.getIntExtra("idUsuario",0)
-
+        username = intent.getStringExtra("username")
         cargarTiposComidas()
 
         binding.rBtnGuardarComida.setOnClickListener {
 
             val comida: Comida? = crearComida()
-            if(comida != null) {
-                Log.d("Comida:" , comida.toString())
-
-                if(comidaViewModel.guardarComidaFB(comida)) {
-                    Toast.makeText(it.context,"COMIDA GUARDADA CON ÉXITO!!",Toast.LENGTH_SHORT).show()
-                    val i = Intent(it.context,TragoActivity::class.java)
-                    i.putExtra("idUsuario",idUsuario)
-                    startActivity(i)
-                    finish()
-                }else {
-                    Toast.makeText(it.context,"ERROR AL GUARDAR LA COMIDA!!",Toast.LENGTH_SHORT).show()
-                }
-
-                /** ESTO ES DE SQLITE
-                if(comidaViewModel.guardarComida(it.context,comida))
-                {
-                    val todascomidas: ArrayList<Comida> ? = comidaViewModel.obtenerComidas(it.context)
-                    if(todascomidas != null)
-                    {
-                        val i = Intent(it.context,TragoActivity::class.java)
-                        i.putExtra("idUsuario",idUsuario)
-                        startActivity(i)
-                        finish()
-
-
-                    } else {
-                        Toast.makeText(it.context,"ERROR AL GUARDAR LA COMIDA!!",Toast.LENGTH_SHORT).show()
-                    }
-                }*/
+            if(comida!= null){
+                guardarComidaLocal(it.context, comida)
             }
+
+
         }
+
+
+        binding.rBtnCerrarSesion.setOnClickListener {
+            startActivity(Intent(it.context, LoginActivity::class.java))
+            finish()
+        }
+
     }
 
     private fun cargarTiposComidas() {
 
-        val items = listOf("Desayuno", "Almuerzo", "Merienda","Cena")
+        val items = listOf("Desayuno", "Almuerzo", "Merienda", "Cena")
         val adapter = ArrayAdapter(this, R.layout.items_tipo, items)
         binding.cSpTipo.adapter = adapter
 
@@ -86,7 +66,7 @@ class ComidaActivity : AppCompatActivity() {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
 
                 tipoComida = items[p2]
-                if(p2 == 1 || p2 == 3) {
+                if (p2 == 1 || p2 == 3) {
                     binding.cLayoutPostre.visibility = View.VISIBLE
 
                 } else {
@@ -108,7 +88,7 @@ class ComidaActivity : AppCompatActivity() {
     fun mostrarPostre(view: View?) {
 
         val opt: RadioButton = findViewById(binding.cRgPostre.checkedRadioButtonId)
-        if(opt == binding.cRbPostreSi) {
+        if (opt == binding.cRbPostreSi) {
             binding.cTipPostre.visibility = View.VISIBLE
         } else {
             binding.cTipPostre.visibility = View.GONE
@@ -119,7 +99,7 @@ class ComidaActivity : AppCompatActivity() {
     fun mostrarTentacion(view: View?) {
 
         val opt: RadioButton = findViewById(binding.cRgTentacion.checkedRadioButtonId)
-        if(opt == binding.cRbTentacionSi) {
+        if (opt == binding.cRbTentacionSi) {
             binding.cTipTentacion.visibility = View.VISIBLE
         } else {
             binding.cTipTentacion.visibility = View.GONE
@@ -127,33 +107,60 @@ class ComidaActivity : AppCompatActivity() {
         }
     }
 
-    private fun crearComida () : Comida? {
-        if(binding.cEtPrincipal.text.toString().isNullOrEmpty()){
-            Toast.makeText(this,"Complete comida principal.",Toast.LENGTH_SHORT).show()
+    private fun crearComida(): Comida? {
+        if (binding.cEtPrincipal.text.toString().isNullOrEmpty()) {
+            Toast.makeText(this, "Complete comida principal.", Toast.LENGTH_SHORT).show()
             return null
         }
 
-        if(binding.cRbPostreSi.isChecked && binding.cEtPostre.text.isNullOrEmpty()){
-            Toast.makeText(this,"Complete descripción de postre.",Toast.LENGTH_SHORT).show()
+        if (binding.cRbPostreSi.isChecked && binding.cEtPostre.text.isNullOrEmpty()) {
+            Toast.makeText(this, "Complete descripción de postre.", Toast.LENGTH_SHORT).show()
             return null
         }
 
-        if(binding.cRbTentacionSi.isChecked && binding.cEtTentacion.text.isNullOrEmpty()){
-            Toast.makeText(this,"Complete descripción de qué quería comer.",Toast.LENGTH_SHORT).show()
+        if (binding.cRbTentacionSi.isChecked && binding.cEtTentacion.text.isNullOrEmpty()) {
+            Toast.makeText(this, "Complete descripción de qué quería comer.", Toast.LENGTH_SHORT)
+                .show()
             return null
         }
 
-        val fecha = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(Calendar.getInstance().time)
+        val fecha = SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss.SSS",
+            Locale.getDefault()
+        ).format(Calendar.getInstance().time)
 
 
-        return Comida(0,tipoComida,binding.cEtPrincipal.text.toString(),
+        return Comida(
+            0, tipoComida, binding.cEtPrincipal.text.toString(),
             binding.cEtSecundaria.text.toString(), binding.cEtBebida.text.toString(),
-            binding.cRbPostreSi.isChecked.toString(),binding.cEtPostre.text.toString(),
-            binding.cRbTentacionSi.isChecked.toString(),binding.cEtTentacion.text.toString(),
-            binding.cRbHambreSi.isChecked.toString(),idUsuario, fecha)
+            binding.cRbPostreSi.isChecked.toString(), binding.cEtPostre.text.toString(),
+            binding.cRbTentacionSi.isChecked.toString(), binding.cEtTentacion.text.toString(),
+            binding.cRbHambreSi.isChecked.toString(), username!!, fecha
+        )
     }
 
+    private fun guardarComidaLocal(context: Context, comida : Comida) {
 
+        if (comida != null) {
+            if (comidaViewModel.guardarComida(context, comida)) {
+                Toast.makeText(context, "COMIDA GUARDADA CON ÉXITO!!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(context,TragoActivity::class.java))
+                finish()
+            } else
+                Toast.makeText(context, "ERROR AL GUARDAR LA COMIDA!!", Toast.LENGTH_SHORT).show()
+        }
+    }
 
-
+    private fun guardarComidaFB(context: Context, comida: Comida) {
+        if(comidaViewModel.guardarComidaFB(comida)) {
+            Toast.makeText(context,"USUARIO REGISTRADO CON ÉXITO !!",Toast.LENGTH_SHORT).show()
+            startActivity(Intent(context,TragoActivity::class.java))
+            finish()
+        } else {
+            Toast.makeText(context,"ERROR AL REGISTRAR EL USUARIO !!",Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun obtenerComidasLocal(): ArrayList<Comida>? {
+        return comidaViewModel.obtenerComidas(this)
+    }
 }

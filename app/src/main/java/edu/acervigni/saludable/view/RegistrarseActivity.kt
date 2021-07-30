@@ -1,5 +1,6 @@
 package edu.acervigni.saludable.view
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -34,23 +35,8 @@ class RegistrarseActivity : AppCompatActivity() {
             val usuario : Usuario? = crearUsuario()
             if(usuario != null){
 
-                if(usuarioViewModel.guardarUsuarioFB(usuario))
-                {
-                    Toast.makeText(it.context,"USUARIO REGISTRADO CON ÉXITO !!",Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(it.context,LoginActivity::class.java))
-                    finish()
-                } else {
-                    Toast.makeText(it.context,"ERROR AL REGISTRAR EL USUARIO !!",Toast.LENGTH_SHORT).show()
-                }
-
-                /** ESTO ES DE SQLITE
-                if(usuarioViewModel.guardarUsuario(it.context,usuario)){
-                    Toast.makeText(it.context,"USUARIO REGISTRADO CON ÉXITO !!",Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(it.context,LoginActivity::class.java))
-                    finish()
-                } else
-                    Toast.makeText(it.context,"ERROR AL REGISTRAR EL USUARIO !!",Toast.LENGTH_SHORT).show()
-                */
+                guardarUsuarioLocal(it.context,usuario)
+                //guardarUsuarioFB(it.context, usuario)
             }
 
         }
@@ -152,6 +138,27 @@ class RegistrarseActivity : AppCompatActivity() {
             binding.rRbMasculino.id -> binding.rRbMasculino.text.toString()
             binding.rRbFemenino.id -> binding.rRbFemenino.text.toString()
             else -> binding.rRbOtro.text.toString()
+        }
+    }
+
+    private fun guardarUsuarioLocal (context : Context, usuario : Usuario) {
+
+        if(usuarioViewModel.guardarUsuario(context,usuario)){
+        Toast.makeText(context,"USUARIO REGISTRADO CON ÉXITO !!",Toast.LENGTH_SHORT).show()
+        startActivity(Intent(context,LoginActivity::class.java))
+        finish()
+        } else
+        Toast.makeText(context,"ERROR AL REGISTRAR EL USUARIO !!",Toast.LENGTH_SHORT).show()
+
+    }
+
+    private fun guardarUsuarioFB (context: Context, usuario : Usuario) {
+        if(usuarioViewModel.guardarUsuarioFB(usuario)) {
+            Toast.makeText(context,"USUARIO REGISTRADO CON ÉXITO !!",Toast.LENGTH_SHORT).show()
+            startActivity(Intent(context,LoginActivity::class.java))
+            finish()
+        } else {
+            Toast.makeText(context,"ERROR AL REGISTRAR EL USUARIO !!",Toast.LENGTH_SHORT).show()
         }
     }
 }
