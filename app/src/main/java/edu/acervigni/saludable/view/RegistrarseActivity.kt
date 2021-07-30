@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
 import edu.acervigni.saludable.R
+import edu.acervigni.saludable.connectionHelper.ConnectionHelper
 import edu.acervigni.saludable.databinding.ActivityRegistrarseBinding
 import edu.acervigni.saludable.model.Usuario
 import edu.acervigni.saludable.viewmodel.UsuarioViewModel
@@ -34,11 +35,16 @@ class RegistrarseActivity : AppCompatActivity() {
         binding.rBtnGuardarRegistro.setOnClickListener {
             val usuario : Usuario? = crearUsuario()
             if(usuario != null){
-
-                guardarUsuarioLocal(it.context,usuario)
-                //guardarUsuarioFB(it.context, usuario)
+                if(!ConnectionHelper.hayInternet(it.context))
+                    guardarUsuarioLocal(it.context,usuario)
+                else
+                    guardarUsuarioFB(it.context, usuario)
             }
+        }
 
+        binding.rBtnCerrarSesion.setOnClickListener {
+            startActivity(Intent(it.context,LoginActivity::class.java))
+            finish()
         }
     }
 
@@ -143,13 +149,17 @@ class RegistrarseActivity : AppCompatActivity() {
 
     private fun guardarUsuarioLocal (context : Context, usuario : Usuario) {
 
-        if(usuarioViewModel.guardarUsuario(context,usuario)){
-        Toast.makeText(context,"USUARIO REGISTRADO CON ÉXITO !!",Toast.LENGTH_SHORT).show()
-        startActivity(Intent(context,LoginActivity::class.java))
-        finish()
-        } else
-        Toast.makeText(context,"ERROR AL REGISTRAR EL USUARIO !!",Toast.LENGTH_SHORT).show()
-
+        when (usuarioViewModel.guardarUsuario(context,usuario)) {
+            1 -> {
+                Toast.makeText(context, "USUARIO REGISTRADO CON ÉXITO !!", Toast.LENGTH_SHORT)
+                    .show()
+                startActivity(Intent(context, LoginActivity::class.java))
+                finish()
+            }
+            2 -> { Toast.makeText(context,"EL N° DE DNI YA SE ENCUENTRA REGISTRADO !!",Toast.LENGTH_SHORT).show() }
+            3 -> { Toast.makeText(context,"EL USUARIO YA SE ENCUENTRA REGISTRADO !!",Toast.LENGTH_SHORT).show() }
+            else -> { Toast.makeText(context,"ERROR AL REGISTRAR EL USUARIO !!",Toast.LENGTH_SHORT).show() }
+        }
     }
 
     private fun guardarUsuarioFB (context: Context, usuario : Usuario) {

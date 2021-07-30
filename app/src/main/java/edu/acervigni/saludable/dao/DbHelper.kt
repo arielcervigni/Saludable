@@ -47,15 +47,15 @@ class DbHelper(
     }
 
     override fun onCreate(db: SQLiteDatabase?){
-        var createTable = ("CREATE TABLE " + TABLE_NAME + " ( " + COLUMN_ID + " INTEGER PRIMARY KEY, " +
-                COLUMN_TIPO + " TEXT, " + COLUMN_N_DOC + " TEXT, " + COLUMN_NOMBRE + " TEXT, " +
+        var createTable = ("CREATE TABLE " + TABLE_NAME + " ( " + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_TIPO + " TEXT, " + COLUMN_N_DOC + " TEXT UNIQUE, " + COLUMN_NOMBRE + " TEXT, " +
                 COLUMN_APELLIDO + " TEXT, " + COLUMN_FECHA_NAC + " TEXT, " + COLUMN_GENERO + " TEXT, " +
                 COLUMN_LOCALIDAD + " TEXT, " + COLUMN_TRATAMIENTO + " TEXT, " +
-                COLUMN_USERNAME + " TEXT, " + COLUMN_PASSWORD + " TEXT )")
+                COLUMN_USERNAME + " TEXT UNIQUE, " + COLUMN_PASSWORD + " TEXT )")
 
         db?.execSQL(createTable)
 
-        createTable = ("CREATE TABLE " + TABLE_NAME_C + " ( " + COLUMN_ID_C + " INTEGER PRIMARY KEY, " +
+        createTable = ("CREATE TABLE " + TABLE_NAME_C + " ( " + COLUMN_ID_C + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_TIPO + " TEXT, " + COLUMN_PRINCIPAL + " TEXT, " + COLUMN_SECUNDARIO + " TEXT, " +
                 COLUMN_BEBIDA + " TEXT, " + COLUMN_BPOSTRE + " TEXT, " + COLUMN_POSTRE + " TEXT, " +
                 COLUMN_BTENTACION + " TEXT, " + COLUMN_TENTACION + " TEXT, " +
@@ -68,7 +68,7 @@ class DbHelper(
 
     }
 
-    fun saveUsuario (usuario: Usuario) : Boolean {
+    fun saveUsuario (usuario: Usuario) : Int {
 
         try {
             val db = this.writableDatabase
@@ -85,12 +85,16 @@ class DbHelper(
             values.put("username",usuario.username)
             values.put("password",usuario.password)
 
-            db.insert(TABLE_NAME,null,values)
-            return true
+            db.insertOrThrow(TABLE_NAME,null,values)
+            return 1
         } catch (e : Exception){
-            Log.e("ERROR", "Error al guardar usuario")
+            Log.e("ERROR", "Error al guardar usuario" + e.message)
+            if(e.message?.contains("n_doc") == true)
+                return 2
+            if(e.message?.contains("username") == true)
+                return 3
         }
-        return false
+        return 0
     }
 
     fun crearUsuario (cursor: Cursor) : Usuario {
@@ -132,6 +136,18 @@ class DbHelper(
             Log.e("ERROR", "Al obtener los usuarios")
         }
         return usuarios
+    }
+
+    fun borrarTablaUsuarios () : Boolean {
+
+        try {
+            val db = this.writableDatabase
+            db.delete(TABLE_NAME,null,null)
+            return true
+        } catch (e : Exception) {
+            Log.e("ERROR","Error al borrar la tabla Usuarios " + e.message)
+            return false
+        }
     }
 
     fun saveComida (comida: Comida) : Boolean {
@@ -203,4 +219,16 @@ class DbHelper(
         return Comida(id,tipo,principal,secundaria,bebida,bpostre,dpostre,
             btentacion,dtentacion,bhambre,username,fechaHora)
     }
+
+    fun borrarTablaComidas () : Boolean {
+        try {
+            val db = this.writableDatabase
+            db.delete(TABLE_NAME_C,null,null)
+            return true
+        } catch (e : Exception) {
+            Log.e("ERROR","Error al borrar la tabla Usuarios " + e.message)
+            return false
+        }
+    }
+
 }

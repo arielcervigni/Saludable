@@ -16,6 +16,10 @@ class ComidaViewModel : ViewModel() {
         val db = DbHelper (context, null)
         return db.obtenerComidas()
     }
+    fun borrarTablaComidas(context: Context) : Boolean {
+        val db = DbHelper (context, null)
+        return db.borrarTablaComidas()
+    }
 
     fun guardarComidaFB (comida: Comida) : Boolean {
         val bdFb = BdFirebase()

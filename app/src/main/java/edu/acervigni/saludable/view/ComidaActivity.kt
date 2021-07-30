@@ -1,6 +1,8 @@
 package edu.acervigni.saludable.view
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import edu.acervigni.saludable.R
+import edu.acervigni.saludable.connectionHelper.ConnectionHelper
 import edu.acervigni.saludable.databinding.ActivityComidaBinding
 import edu.acervigni.saludable.model.Comida
 import edu.acervigni.saludable.viewmodel.ComidaViewModel
@@ -31,16 +34,27 @@ class ComidaActivity : AppCompatActivity() {
         binding = ActivityComidaBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        username = intent.getStringExtra("username")
+        if(username != null)
+            binding.cTvTitulo.text = "Hola " + username!!.uppercase() + "!\n ¿Qué comida deseas cargar?"
+        else {
+            Toast.makeText(this,"ERROR AL INICIAR SESION, POR FAVOR REINTENTE.",Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this,LoginActivity::class.java))
+            finish()
+        }
+
         comidaViewModel = ViewModelProvider(this).get(ComidaViewModel::class.java)
 
-        username = intent.getStringExtra("username")
         cargarTiposComidas()
 
         binding.rBtnGuardarComida.setOnClickListener {
 
             val comida: Comida? = crearComida()
-            if(comida!= null){
-                guardarComidaLocal(it.context, comida)
+            if (comida != null) {
+                if(!ConnectionHelper.hayInternet(it.context))
+                    guardarComidaLocal(it.context, comida)
+                else
+                    guardarComidaFB(it.context,comida)
             }
 
 
@@ -139,28 +153,44 @@ class ComidaActivity : AppCompatActivity() {
         )
     }
 
-    private fun guardarComidaLocal(context: Context, comida : Comida) {
+    private fun guardarComidaLocal(context: Context, comida: Comida) {
 
-        if (comida != null) {
-            if (comidaViewModel.guardarComida(context, comida)) {
-                Toast.makeText(context, "COMIDA GUARDADA CON ÉXITO!!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(context,TragoActivity::class.java))
-                finish()
-            } else
-                Toast.makeText(context, "ERROR AL GUARDAR LA COMIDA!!", Toast.LENGTH_SHORT).show()
-        }
+        if (comidaViewModel.guardarComida(context, comida)) {
+
+            val dialog = DialogTrago()
+            limpiarVista()
+
+        } else
+            Toast.makeText(context, "ERROR AL GUARDAR LA COMIDA!!", Toast.LENGTH_SHORT).show()
     }
+
 
     private fun guardarComidaFB(context: Context, comida: Comida) {
-        if(comidaViewModel.guardarComidaFB(comida)) {
-            Toast.makeText(context,"USUARIO REGISTRADO CON ÉXITO !!",Toast.LENGTH_SHORT).show()
-            startActivity(Intent(context,TragoActivity::class.java))
-            finish()
+        if (comidaViewModel.guardarComidaFB(comida)) {
+            val dialogo = DialogTrago()
+            try {
+                dialogo.show(supportFragmentManager, "Dialog")
+                limpiarVista()
+            } catch (ignored: IllegalStateException) {
+            }
         } else {
-            Toast.makeText(context,"ERROR AL REGISTRAR EL USUARIO !!",Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "ERROR AL REGISTRAR EL USUARIO !!", Toast.LENGTH_SHORT).show()
         }
     }
+
     private fun obtenerComidasLocal(): ArrayList<Comida>? {
         return comidaViewModel.obtenerComidas(this)
+    }
+
+    private fun limpiarVista() {
+        binding.cEtPrincipal.setText("")
+        binding.cEtSecundaria.setText("")
+        binding.cEtBebida.setText("")
+        binding.cEtPostre.setText("")
+        binding.cEtTentacion.setText("")
+        binding.cRbHambreNo.isChecked = true
+        binding.cRbTentacionNo.isChecked = true
+        binding.cRbPostreNo.isChecked = true
+
     }
 }
