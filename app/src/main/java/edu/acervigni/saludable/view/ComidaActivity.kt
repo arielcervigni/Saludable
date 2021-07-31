@@ -1,17 +1,12 @@
 package edu.acervigni.saludable.view
 
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.lifecycle.ViewModelProvider
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import edu.acervigni.saludable.R
 import edu.acervigni.saludable.connectionHelper.ConnectionHelper
 import edu.acervigni.saludable.databinding.ActivityComidaBinding

@@ -26,7 +26,6 @@ class UsuarioViewModel : ViewModel() {
     }
     fun login(context: Context, username : String, password : String) : Int {
         val usuarios: ArrayList<Usuario>? = obtenerUsuarios(context)
-        Log.d("usuarios", usuarios.toString())
         if(usuarios != null)
         {
             for(u : Usuario in usuarios)

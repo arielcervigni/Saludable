@@ -210,7 +210,7 @@ class RegistrarseActivity : AppCompatActivity() {
                         usernames.add(data)
 
                 } catch (e : Exception) {
-                    Log.d("Usuarios Ex: ",e.message.toString())
+                    Log.e("Usuarios Ex: ",e.message.toString())
                 }
 
             }

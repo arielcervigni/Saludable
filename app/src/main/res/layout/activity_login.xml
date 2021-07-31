@@ -63,8 +63,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:textSize="25sp"
-        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:textColor="@color/secondaryDarkColor"
         android:text="" />
 
     <com.google.android.material.textfield.TextInputLayout

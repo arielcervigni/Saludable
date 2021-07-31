@@ -44,16 +44,11 @@ class LoginActivity : AppCompatActivity() {
         usuarios = usuarioViewModel.obtenerUsuarios(this)
         comidas = comidaViewModel.obtenerComidas(this)
 
-        Log.d("ARIEL", usuarios.toString())
-        Log.d("ARIEL", comidas.toString())
 
         if (!ConnectionHelper.hayInternet(this)) {
             ConnectionHelper.crearAlertDialogoInternet(this)
-
-
         } else {
             cargarUsuarios()
-
             if (usuarios!!.isNotEmpty() || comidas!!.isNotEmpty())
                 crearAlertDialogoSincro(this)
         }
@@ -69,8 +64,7 @@ class LoginActivity : AppCompatActivity() {
                     loginFB(it.context)
                 }
             } else {
-                Toast.makeText(this, "INGRESE NOMBRE DE USUARIO Y/O CONTRASEÑA", Toast.LENGTH_SHORT)
-                    .show()
+               binding.lResultado.text = "INGRESE NOMBRE DE USUARIO Y/O CONTRASEÑA"
             }
 
 
@@ -171,7 +165,6 @@ class LoginActivity : AppCompatActivity() {
                                 .setMessage("Su dni es: " + dni + "?")
                                 .setNegativeButton("NO") { _, _ ->
                                     oldUsername = u.username
-                                    Log.d("ARIEL", "oldUsername:" + oldUsername)
                                     usuarioEditado = u
                                     binding.tipnuevoNombre.visibility = View.VISIBLE
                                     binding.btnLCambiarUsername.visibility = View.VISIBLE
@@ -220,13 +213,11 @@ class LoginActivity : AppCompatActivity() {
         val comidas: ArrayList<Comida>? = comidaViewModel.obtenerComidas(context)
         if (comidas?.isNotEmpty()!!) {
             for (c: Comida in comidas) {
-                Log.d("ARIEL", "c.username : " + c.username + " oldUsername: " + oldUsername)
                 if (c.username == oldUsername)
                     c.username = usuarioEditado.username
 
                 if (comidaViewModel.guardarComidaFB(c)) {
                     //Toast.makeText(this,"USUARIOS SINCRONIZADOS",Toast.LENGTH_SHORT).show()
-                    Log.d("ARIEL", "comidas" + c.username)
                 }
             }
             if (comidaViewModel.borrarTablaComidas(context)) {
@@ -283,7 +274,7 @@ class LoginActivity : AppCompatActivity() {
                         usernames.add(data)
 
                 } catch (e: Exception) {
-                    Log.d("Usuarios Ex: ", e.message.toString())
+                    Log.e("Usuarios Ex: ", e.message.toString())
                 }
 
             }
