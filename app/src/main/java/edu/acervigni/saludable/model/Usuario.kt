@@ -8,7 +8,7 @@ data class Usuario (
     var numeroDocumento: String,
     var nombre: String,
     var apellido: String,
-    val fechaNacimiento: String,
+    var fechaNacimiento: String,
     var sexo : String,
     var localidad : String,
     var tratamiento : String,

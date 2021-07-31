@@ -1,6 +1,8 @@
 package edu.acervigni.saludable.dao
 
+import android.content.Context
 import android.util.Log
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import edu.acervigni.saludable.model.Comida
@@ -66,5 +68,8 @@ class BdFirebase  {
         return rta
     }
 
-
+    fun obtenerUsuariosFB(): CollectionReference {
+        val rta : CollectionReference = db.collection("usuarios")
+        return rta
+    }
 }

@@ -4,41 +4,54 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.firestore.ktx.getField
+import com.google.gson.Gson
 import edu.acervigni.saludable.R
 import edu.acervigni.saludable.connectionHelper.ConnectionHelper
 import edu.acervigni.saludable.databinding.ActivityRegistrarseBinding
 import edu.acervigni.saludable.model.Usuario
 import edu.acervigni.saludable.viewmodel.UsuarioViewModel
+import java.util.*
+import kotlin.collections.ArrayList
 
 class RegistrarseActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegistrarseBinding
     private lateinit var usuarioViewModel : UsuarioViewModel
+    private lateinit var usernames : ArrayList<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegistrarseBinding.inflate(layoutInflater)
+        usernames = ArrayList()
 
         setContentView(binding.root)
 
         usuarioViewModel = ViewModelProvider(this).get(UsuarioViewModel::class.java)
 
+        if(ConnectionHelper.hayInternet(this))
+            cargarUsuarios()
+
         cargarTratamientos()
         cargarDatePicker()
+
 
         binding.rBtnGuardarRegistro.setOnClickListener {
             val usuario : Usuario? = crearUsuario()
             if(usuario != null){
                 if(!ConnectionHelper.hayInternet(it.context))
                     guardarUsuarioLocal(it.context,usuario)
-                else
+                else{
                     guardarUsuarioFB(it.context, usuario)
+                }
+
             }
         }
 
@@ -80,6 +93,10 @@ class RegistrarseActivity : AppCompatActivity() {
             Toast.makeText(this,"Verifique N° de Documento", Toast.LENGTH_SHORT).show()
             return null
         }
+        if(usernames.contains(binding.rEtDocumento.text.toString())){
+            Toast.makeText(this,"El N° de Documento ya se encuentra registrado", Toast.LENGTH_SHORT).show()
+            return null
+        }
 
         if(binding.rEtNombre.text.isNullOrEmpty()) {
             Toast.makeText(this,"Complete el nombre", Toast.LENGTH_SHORT).show()
@@ -117,6 +134,11 @@ class RegistrarseActivity : AppCompatActivity() {
             return null
         }
 
+        if(usernames.contains(binding.rEtUsername.text.toString())){
+            Toast.makeText(this,"El nombre de usuario elegido ya se encuentra registrado",Toast.LENGTH_SHORT).show()
+            return null
+        }
+
         if(binding.rEtConfPassword.text.isNullOrEmpty()){
             Toast.makeText(this,"Complete verificar contraseña",Toast.LENGTH_SHORT).show()
             if(!binding.rEtConfPassword.text?.equals(binding.rEtPassword.text)!!) {
@@ -125,6 +147,8 @@ class RegistrarseActivity : AppCompatActivity() {
             }
             return null
         }
+
+
 
 
         return Usuario(0,binding.rEtDocumento.text.toString(),
@@ -170,5 +194,32 @@ class RegistrarseActivity : AppCompatActivity() {
         } else {
             Toast.makeText(context,"ERROR AL REGISTRAR EL USUARIO !!",Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun cargarUsuarios () {
+        val docRef = usuarioViewModel.obtenerUsuariosFB()
+        docRef.get().addOnSuccessListener { result ->
+            for (document in result)
+            {
+                try {
+                    var data = document.getString("username")
+                    if (data != null)
+                        usernames.add(data)
+                    data = document.getString("numeroDocumento")
+                    if(data != null)
+                        usernames.add(data)
+
+                } catch (e : Exception) {
+                    Log.d("Usuarios Ex: ",e.message.toString())
+                }
+
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        startActivity(Intent(this,LoginActivity::class.java))
+        finish()
     }
 }

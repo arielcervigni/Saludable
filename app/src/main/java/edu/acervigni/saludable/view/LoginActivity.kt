@@ -9,6 +9,7 @@ import android.net.Network
 import android.os.Bundle
 import android.text.BoringLayout
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -46,6 +47,7 @@ class LoginActivity : AppCompatActivity() {
 
         binding.btnLIniciar.setOnClickListener {
 
+            binding.lProgressbar.visibility = View.VISIBLE
             if(!binding.etLUsername.text.isNullOrEmpty() && !binding.etLPassword.text.isNullOrEmpty()) {
                 if (!ConnectionHelper.hayInternet(this)) {
                     loginLocal(it.context)

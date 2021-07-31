@@ -3,6 +3,7 @@ package edu.acervigni.saludable.viewmodel
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import edu.acervigni.saludable.dao.BdFirebase
 import edu.acervigni.saludable.model.Usuario
@@ -50,4 +51,8 @@ class UsuarioViewModel : ViewModel() {
 
     }
 
+    fun obtenerUsuariosFB(): CollectionReference {
+        val dbFB = BdFirebase()
+        return dbFB.obtenerUsuariosFB()
+    }
 }
