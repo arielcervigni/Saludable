@@ -156,10 +156,9 @@ class ComidaActivity : AppCompatActivity() {
     private fun guardarComidaLocal(context: Context, comida: Comida) {
 
         if (comidaViewModel.guardarComida(context, comida)) {
-
             val dialog = DialogTrago()
+            dialog.show(supportFragmentManager, "Dialog")
             limpiarVista()
-
         } else
             Toast.makeText(context, "ERROR AL GUARDAR LA COMIDA!!", Toast.LENGTH_SHORT).show()
     }
