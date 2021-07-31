@@ -27,6 +27,12 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var usuarioViewModel: UsuarioViewModel
     private lateinit var comidaViewModel: ComidaViewModel
+    private lateinit var usernames : ArrayList<String>
+    private var comidas : ArrayList<Comida>? = null
+    private var usuarios : ArrayList<Usuario>? = null
+
+
+    private lateinit var usernameOld : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,13 +41,17 @@ class LoginActivity : AppCompatActivity() {
 
         usuarioViewModel = ViewModelProvider(this).get(UsuarioViewModel::class.java)
         comidaViewModel = ViewModelProvider(this).get(ComidaViewModel::class.java)
+        usuarios = ArrayList()
+        comidas = ArrayList()
+        usernames = ArrayList()
 
         if(!ConnectionHelper.hayInternet(this)) {
             ConnectionHelper.crearAlertDialogoInternet(this)
         } else {
-            if(!usuarioViewModel.obtenerUsuarios(this)?.isEmpty()!! &&
-                !comidaViewModel.obtenerComidas(this)?.isEmpty()!!)
-            crearAlertDialogoSincro(this)
+            usuarios = usuarioViewModel.obtenerUsuarios(this)
+            comidas = comidaViewModel.obtenerComidas(this)
+            if(usuarios!!.isNotEmpty() || comidas!!.isNotEmpty())
+                crearAlertDialogoSincro(this)
         }
 
 
@@ -79,7 +89,7 @@ class LoginActivity : AppCompatActivity() {
             startActivity(i)
             finish()
         } else {
-            Toast.makeText(context, "USUARIO O CONTRASEÑA INCORRECTO", Toast.LENGTH_SHORT).show()
+            binding.lResultado.text = "USUARIO O CONTRASEÑA INCORRECTO"
         }
     }
 
@@ -100,19 +110,17 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun sincronizarUsuarios (context: Context) : Boolean {
-        val usuarios : ArrayList<Usuario>? = usuarioViewModel.obtenerUsuarios(context)
+        usuarios = usuarioViewModel.obtenerUsuarios(context)
         if(!usuarios?.isEmpty()!!) {
-            for (u: Usuario in usuarios) {
-                if(usuarioViewModel.guardarUsuarioFB(u)) {
-                    //Toast.makeText(this,"USUARIOS SINCRONIZADOS",Toast.LENGTH_SHORT).show()
-                    Log.d("Sincro", "usuario" + u.username)
+            for (u: Usuario in usuarios!!) {
+                    if(usuarioViewModel.guardarUsuarioFB(u)) {
+                        binding.lResultado.text ="USUARIOS SINCRONIZADOS"
+                    }
                 }
             }
             if(usuarioViewModel.borrarTablaUsuarios(context)) {
-                Log.d("Sincro", usuarios.size.toString() + " usuarios guardados correctamente")
                 return true
             }
-        }
         return false
     }
 
@@ -140,13 +148,20 @@ class LoginActivity : AppCompatActivity() {
             .setCancelable(true)
             .setPositiveButton("ACEPTAR", DialogInterface.OnClickListener { dialogInterface, i ->
 
-                if(sincronizarUsuarios(context) && sincronizarComidas(context)) {
-                    Toast.makeText(context,"DATOS GUARDADOS CORRECTAMENTE", Toast.LENGTH_SHORT).show()
-                }
+                var rta = false
+                if(usuarios!!.isNotEmpty())
+                    if(sincronizarUsuarios(context))
+                        rta = true
+
+                if(comidas!!.isNotEmpty())
+                    if(sincronizarComidas(context))
+                        rta = true
+
+                if(rta)
+                    binding.lResultado.text = "DATOS GUARDADOS CORRECTAMENTE"
+
             })
             .show()
     }
-
-
 
 }

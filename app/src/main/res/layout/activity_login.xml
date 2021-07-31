@@ -58,6 +58,15 @@
         android:layout_height="wrap_content"
         android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/l_resultado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="25sp"
+        android:textColor="@color/black"
+        android:text="" />
+
     <Button
         android:id="@+id/btn_l_iniciar"
         android:layout_width="match_parent"
